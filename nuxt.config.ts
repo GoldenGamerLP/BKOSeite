@@ -2,7 +2,13 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
-  modules: ["shadcn-nuxt", "@nuxtjs/tailwindcss", "@vueuse/nuxt"],
+  modules: [
+    "shadcn-nuxt",
+    "@nuxtjs/tailwindcss",
+    "@vueuse/nuxt",
+    "@nuxtjs/color-mode",
+    "@pinia/nuxt"
+  ],
   app: {
     rootAttrs: {
       class: "dark",
@@ -19,4 +25,7 @@ export default defineNuxtConfig({
      */
     componentDir: "./components/ui",
   },
+  colorMode: {
+    classSuffix: ''
+  }
 });

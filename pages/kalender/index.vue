@@ -1,113 +1,218 @@
 <template>
-  <div class="max-w-4xl mx-auto p-4">
-    <h2 class="text-semibold text-3xl">{{ currentTime }}</h2>
-    <h3 class="text-semibold text-2xl">
-      {{ dateFormatter.format(new Date()) }}
-    </h3>
-    <Separator orientation="horizontal" class="my-4" />
-    <div class="flex justify-between items-center mb-4">
-      <p class="text-semibold">
-        {{ dateFormatter.format(date.toDate(getLocalTimeZone())) }}
-      </p>
-      <div class="flex items-center space-x-4">
-        <Button
-          @click="date = date.copy().subtract({ months: 1 })"
-          variant="link"
-        >
-          <ChevronDown />
-          <span class="sr-only">Previous</span>
-        </Button>
-        <Button @click="date = date.copy().add({ months: 1 })" variant="link">
-          <ChevronUp />
-          <span class="sr-only">Next</span>
-        </Button>
-      </div>
-    </div>
-    <div class="grid grid-cols-7">
-      <div
-        v-for="(day, index) in days"
-        :key="day"
-        class="text-center font-semibold bg-primary border-border border-t border-b"
-        :class="{
-          'text-muted-foreground': index > 4,
-          'rounded-tl-lg border-l': index === 0,
-          'rounded-tr-lg border-r': index === 6,
-        }"
-      >
-        {{ day }}
-      </div>
-      <template v-for="(date, index) in computedDays" :key="index">
-        <Button
-          :id="`date-${index}`"
-          :class="{
-            'text-muted-foreground': date.isPast,
-            'text-foreground': !date.isPast,
-            'text-primary font-bold': date.today,
-            'border border-border border-b-0 rounded-bl-none rounded-br-none shadow': index === currentSelected,
-          }"
-          class="text-center border-border"
-          variant="link"
-          @click="selectDate(index)"
-        >
-          {{ date.day }}
-        </Button>
+  <div>
+    <Tabs default-value="month" class="w-full">
+      <header class="flex flex-col gap-4 p-2">
+        <div class="flex items-center justify-between">
+          <h1 class="text-xl font-bold">Kalender</h1>
+          <div class="flex flex-col text-right">
+            <span class="text-sm font-normal text-muted-foreground">
+              {{ currentTime }}
+            </span>
+            <span class="text-sm font-normal text-muted-foreground">
+              {{
+                new Date().toLocaleDateString("de-DE", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+              }}
+            </span>
+          </div>
+        </div>
 
-        <div
-          v-if="isInLine(index + 1) || index === computedDays.length - 1"
-          :id="`row-end-${index}`"
-          class="contents"
-        />
-      </template>
-    </div>
-    <Teleport
-      v-if="currentSelected !== null"
-      :to="`#row-end-${getRowEndIndex(currentSelected)}`"
-    >
-      <Card class="col-span-7 w-full">
-        <CardHeader class="relative">
-          <CardTitle>Termine für den</CardTitle>
-          <CardDescription>{{ computedDays[currentSelected].formattedDate }}</CardDescription>
-          <Button class="absolute top-2 right-2" variant="outline" size="icon" @click="currentSelected = null">
-            <X />
+        <TabsList class="md:w-fit w-full">
+          <TabsTrigger value="day">
+            <Calendar class="h-4 w-4 mr-2" />
+            Tag
+          </TabsTrigger>
+          <TabsTrigger value="week">
+            <CalendarDays class="h-4 w-4 mr-2" />
+            Woche
+          </TabsTrigger>
+          <TabsTrigger value="month">
+            <CalendarRange class="h-4 w-4 mr-2" />
+            Monat
+          </TabsTrigger>
+        </TabsList>
+
+        <div class="flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="icon"
+            @click="date = date.copy().subtract({ months: 1 })"
+          >
+            <ChevronLeft class="h-5 w-5" />
           </Button>
-        </CardHeader>
-        <CardContent>
-          <p class="font-semibold text-xl">Termine</p>
-          <ol class="list-disc list-inside">
-            <li>Termin 1</li>
-            <li>Termin 2</li>
-            <li>Termin 3</li>
-          </ol>
-        </CardContent>
-      </Card>
-    </Teleport>
+          <span class="text-sm font-medium">
+            {{ dateFormatter.format(date.toDate(getLocalTimeZone())) }}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            @click="date = date.copy().add({ months: 1 })"
+          >
+            <ChevronRight class="h-5 w-5" />
+          </Button>
+        </div>
+      </header>
+      <Separator />
+
+      <TabsContent value="day">
+        <div class="p-4">
+          <h3 class="text-lg font-medium">Tagesansicht</h3>
+          <p class="text-muted-foreground">
+            Tagesansicht wird noch implementiert...
+          </p>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="week">
+        <div class="p-4">
+          <h3 class="text-lg font-medium">Wochenansicht</h3>
+          <p class="text-muted-foreground">
+            Wochenansicht wird noch implementiert...
+          </p>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="month">
+        <div class="grid grid-cols-7 p-2 gap-1 sm:gap-2">
+          <div
+            v-for="(day, index) in days"
+            :key="day"
+            class="text-center font-semibold text-xs sm:text-sm lg:text-base"
+            :class="{
+              'text-primary font-semibold': isCurrentDay(index),
+            }"
+          >
+            {{ day }}
+          </div>
+          <template v-for="(date, index) in computedDays" :key="index">
+            <div
+              class="p-1 sm:p-2 hover:shadow-muted cursor-pointer rounded-lg min-h-[50px] sm:min-h-[100px] lg:min-h-[150px] w-full flex flex-col relative border transition-all duration-200 ease-in-out"
+              :class="{
+                'bg-primary/20': date.today,
+                'border-r': index % 7 !== 6,
+                'shadow-sm hover:shadow-md': !date.isPast,
+              }"
+              @click="openCreateDialog(date.datevalue)"
+            >
+              <ol
+                class="hidden sm:flex flex-col space-y-1 lg:space-y-2 mb-1 flex-grow"
+              >
+                <template
+                  v-for="termine in getCalendarEntries(index).slice(0, 2)"
+                  :key="termine"
+                >
+                  <li
+                    class="text-xs lg:text-sm rounded-lg bg-primary/50 p-1 line-clamp-1"
+                  >
+                    {{ termine.title }}
+                  </li>
+                </template>
+                <li v-if="getCalendarEntries(index).length > 2">
+                  <span class="text-xs lg:text-sm text-muted-foreground">
+                    +{{ getCalendarEntries(index).length - 2 }} mehr
+                  </span>
+                </li>
+              </ol>
+
+              <div class="flex sm:hidden gap-0.5 absolute top-1 left-1">
+                <div
+                  v-for="(_, i) in getCalendarEntries(index).slice(0, 3)"
+                  :key="i"
+                  class="w-1.5 h-1.5 rounded-full bg-primary"
+                ></div>
+                <div
+                  v-if="getCalendarEntries(index).length > 3"
+                  class="w-1.5 h-1.5 rounded-full bg-primary opacity-50"
+                ></div>
+              </div>
+
+              <div class="flex mt-auto items-center">
+                <span
+                  class="font-semibold text-right ml-auto text-xs sm:text-sm lg:text-base"
+                  :class="{ 'text-muted-foreground': date.isPast }"
+                >
+                  {{ date.day }}
+                </span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </TabsContent>
+    </Tabs>
+    <SystemCalendarCreateDialoag ref="sccd" />
   </div>
 </template>
 
 <script lang="ts" setup>
+import type { SystemCalendarCreateDialoag } from "#components";
 import {
   type DateValue,
   getLocalTimeZone,
   today,
   DateFormatter,
-  createCalendar,
   startOfMonth,
   getDayOfWeek,
 } from "@internationalized/date";
 import { useIntervalFn } from "@vueuse/core";
-import { ChevronDown, ChevronUp, X } from "lucide-vue-next";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Calendar,
+  CalendarRange,
+  CalendarDays,
+  RefreshCw,
+} from "lucide-vue-next";
 
+import type { CalendarEntry } from "~/types/Calendar";
+
+const sccd = ref<InstanceType<typeof SystemCalendarCreateDialoag> | null>();
 const currentTime = ref("");
 const date = ref<DateValue>(today(getLocalTimeZone()));
 const days = ref<string[]>([]);
-interface SelectedDate {
-  day: string;
-  formattedDate: string;
-  isPast: boolean;
-  today: boolean;
-}
 
-const currentSelected = ref<number | null>(null);
+const {
+  data: entries,
+  status,
+  error,
+} = useLazyFetch("/api/v1/calendar/entries/get", {
+  method: "GET",
+  query: { from: date.value?.toDate(getLocalTimeZone()) || null },
+  watch: [date],
+});
+
+const computedEntries = computed(() => {
+  return (
+    entries.value?.map((entry) => ({
+      ...entry,
+      from: new Date(entry.from),
+      to: entry.to ? new Date(entry.to) : null,
+    })) ?? ([] as CalendarEntry[])
+  );
+});
+
+const isCurrentDay = (index: number) => {
+  const dow = getDayOfWeek(today(getLocalTimeZone()), "de-DE");
+  return dow === index;
+};
+
+const getCalendarEntries = (date: number): CalendarEntry[] => {
+  const formattedDate = computedDays.value[date].datevalue.toDate(
+    getLocalTimeZone()
+  );
+  return computedEntries.value.filter((entry) => {
+    const entryDate = entry.from;
+    return (
+      entryDate.getDate() === formattedDate.getDate() &&
+      entryDate.getMonth() === formattedDate.getMonth() &&
+      entryDate.getFullYear() === formattedDate.getFullYear()
+    );
+  });
+};
+
 const dateTimeformatter = Intl.DateTimeFormat("de-DE", {
   hour: "numeric",
   minute: "numeric",
@@ -152,6 +257,8 @@ const computedDays = computed(() => {
       formattedDate: dateFormatter.format(crrDate.toDate(getLocalTimeZone())),
       isPast: true,
       today: false,
+      timestamp: crrDate.toDate(getLocalTimeZone()).toISOString(),
+      datevalue: crrDate,
     });
   }
 
@@ -162,42 +269,16 @@ const computedDays = computed(() => {
       formattedDate: dateFormatter.format(crrDate.toDate(getLocalTimeZone())),
       isPast: false,
       today: crrDate.compare(crrDay) === 0,
+      timestamp: crrDate.toDate(getLocalTimeZone()).toISOString(),
+      datevalue: crrDate,
     });
   }
 
   return shortDays;
 });
 
-const isInLine = (index: number | null) => {
-  return index !== null && index % 7 === 0;
+const openCreateDialog = (currentDate: DateValue | undefined) => {
+  console.log(currentDate);
+  sccd.value?.openDialog(currentDate);
 };
-
-const getRowEndIndex = (index: number) => {
-  const currentRow = Math.floor(index / 7);
-  const rowEndIndex = Math.min(
-    currentRow * 7 + 6,
-    computedDays.value.length - 1
-  );
-  return rowEndIndex;
-};
-
-function selectDate(index: number | null) {
-  if (currentSelected.value === index) {
-    currentSelected.value = null;
-  } else {
-    currentSelected.value = index;
-  }
-}
 </script>
-
-<style>
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.5s ease;
-}
-.expand-enter,
-.expand-leave-to {
-  height: 0;
-  opacity: 0;
-}
-</style>
