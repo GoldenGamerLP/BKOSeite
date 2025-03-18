@@ -1,4 +1,4 @@
-import { Db, MongoClient, ServerApiVersion } from "mongodb";
+import { Db, MongoClient, ServerApiVersion, GridFSBucket } from "mongodb";
 
 if (!process.env.MONGODB_URI) {
   throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
@@ -13,21 +13,42 @@ const client = new MongoClient(process.env.MONGODB_URI, {
   },
 });
 
-async function run() {
-  // Connect the client to the server	(optional starting in v4.7)
-  await client.connect();
-  // Send a ping to confirm a successful connection
-  await client.db("admin").command({ ping: 1 });
-  console.log("Pinged your deployment. You successfully connected to MongoDB!");
+const database = client.db(process.env.MONGODB_DATABASE);
+
+// Initialize GridFS bucket
+let gridFSBucket: GridFSBucket;
+
+export async function connectToDatabase() {
+  try {
+    await client.connect();
+    console.log('Connected to MongoDB');
+    
+    // Initialize GridFS bucket after connection
+    gridFSBucket = new GridFSBucket(database, {
+      bucketName: 'uploads'
+    });
+    
+    return { client, database, gridFSBucket };
+  } catch (error) {
+    console.error('Failed to connect to MongoDB', error);
+    throw error;
+  }
 }
-run().catch(console.dir);
+
+// Call this during server startup
+connectToDatabase().catch(console.error);
+
+export function getGridFSBucket(): GridFSBucket {
+  if (!gridFSBucket) {
+    throw new Error('GridFS bucket not initialized. Make sure to connect to the database first.');
+  }
+  return gridFSBucket;
+}
 
 //When nodejs/shutdown
 process.on("SIGINT", async () => {
   console.log("Closing MongoDB connection");
   await client.close();
 });
-
-const database = client.db(process.env.MONGODB_DATABASE);
 
 export default database as Db;

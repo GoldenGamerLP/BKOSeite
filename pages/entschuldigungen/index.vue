@@ -50,7 +50,7 @@
             <Label for="zusatzlicherKommentar">Zusätzlicher Kommentar</Label>
             <Textarea id="zusatzlicherKommentar" v-model="zusatzlicherKommentar" placeholder="Dein Kommentar" />
 
-            <SystemAnlagen />
+            <SystemAnlagen ref="systemAnlagen" />
 
             <Label for="ortDatum">Ort & Datum</Label>
             <Input id="ortDatum" type="text" v-model="ortDatum" autocomplete="off" required />
@@ -58,19 +58,26 @@
             <Label for="unterschrift">Unterschrift</Label>
             <SystemUnterschrift id="unterschrift" ref="unterschrift" />
 
-            <Button type="submit">Absenden</Button>
+            <Button type="submit">
+                <template v-if="isLoading">
+                    <Loader2Icon class="w-5 h-5 animate-spin" /> Lade...
+                </template>
+                <template v-else>Senden</template>
+            </Button>
         </form>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { cn } from "@/lib/utils";
-import { Check, Search } from "lucide-vue-next";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { DateRange } from "reka-ui";
 import Unterschrift from "~/components/system/Unterschrift.vue";
+import { Loader2Icon } from "lucide-vue-next";
+import type { SystemAnlagen } from "#components";
 
+const isLoading = ref(false);
 const unterschrift = ref<typeof Unterschrift>();
+const systemAnlagen = ref<typeof SystemAnlagen>();
 const name = ref("");
 const vorname = ref("");
 const klassenleiter = ref("");
@@ -95,33 +102,44 @@ const begruendungOptions = ref([
     { value: "Sonstiges", label: "Sonstiges" },
 ]);
 
-const submit = () => {
-    const data = {
-        name: name.value,
-        vorname: vorname.value,
-        klassenleiter: klassenleiter.value,
-        klasse: klasse.value,
-        zeitraumVon: zeitraum.value.start?.toString(),
-        zeitraumBis: zeitraum.value.end?.toString(),
-        begruendung: begruendung.value,
-        zusatzlicherKommentar: zusatzlicherKommentar.value,
-        ortDatum: ortDatum.value,
-        unterschrift: unterschrift.value?.getSignature(),
-    };
+const submit = async () => {
+    isLoading.value = true;
+    const formData = new FormData();
 
-    console.log(JSON.stringify(data));
+    formData.append('nachname', name.value);
+    formData.append('vorname', vorname.value);
+    formData.append('klassenleiter', klassenleiter.value);
+    formData.append('klasse', klasse.value);
+    formData.append('zeitraumVon', zeitraum.value.start?.toString() || '');
+    formData.append('zeitraumBis', zeitraum.value.end?.toString() || '');
+    formData.append('begruendung', begruendung.value);
+    formData.append('zusatzlicherKommentar', zusatzlicherKommentar.value);
+    formData.append('ortDatum', ortDatum.value);
+    formData.append('unterschrift', unterschrift.value?.getSignature());
+
+    // Append multiple files if any
+    const files: FileList = systemAnlagen.value?.getFiles();
+    if (files) {
+        for(let i = 0; i < files.length; i++) {
+            formData.append('anlagen', files[i], files[i].name);
+        }
+    }
+    console.log('formData', formData.values());
 
     try {
-        $fetch("/api/v1/entschuldigung/post", {
-            method: "POST",
-            body: JSON.stringify(data),
+        await $fetch('/api/v1/entschuldigung/post', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                "cache-control": "no-cache",
+            },
         });
     } catch (error) {
         console.error(error);
+    } finally {
+        isLoading.value = false;
     }
-
-    // Reset the form by reloading the page
-    //window.location.reload();
 };
 
 // Define a schema for the form: Name, Vorname, Klassenleiter, Klasse, Zeitraum (RangeCalender), Begründung (Selector), Zusätzlicher Kommentar (Textarea), Anlagen (FileUpload), Ort & Datum (Text), Unterschrift (Signature/Canvas)

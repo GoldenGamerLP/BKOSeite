@@ -44,7 +44,7 @@
             <li v-for="entry in data" :key="entry.id">
                 <Card class="mb-4">
                     <CardHeader>
-                        <CardTitle class="text-xl">{{ entry.id }}</CardTitle>
+                        <CardTitle class="text-xl">{{ entry.nachname }}</CardTitle>
                         <CardDescription class="text-base">{{ entry.vorname }}</CardDescription>
                     </CardHeader>
                     <CardContent class="grid grid-cols-1 md:grid-cols-2 gap-2">

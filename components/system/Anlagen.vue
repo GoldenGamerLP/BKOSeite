@@ -56,4 +56,10 @@ const formatSize = (size: number) => {
   }
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 };
+
+const getFiles = () => {
+  return files;
+};
+
+defineExpose({ getFiles });
 </script>
