@@ -58,7 +58,7 @@ const formatSize = (size: number) => {
 };
 
 const getFiles = () => {
-  return files;
+  return files.value;
 };
 
 defineExpose({ getFiles });

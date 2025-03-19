@@ -72,12 +72,12 @@
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { DateRange } from "reka-ui";
 import Unterschrift from "~/components/system/Unterschrift.vue";
+import Anlagen from "~/components/system/Anlagen.vue";
 import { Loader2Icon } from "lucide-vue-next";
-import type { SystemAnlagen } from "#components";
 
 const isLoading = ref(false);
 const unterschrift = ref<typeof Unterschrift>();
-const systemAnlagen = ref<typeof SystemAnlagen>();
+const systemAnlagen = ref<typeof Anlagen>();
 const name = ref("");
 const vorname = ref("");
 const klassenleiter = ref("");
@@ -119,24 +119,25 @@ const submit = async () => {
 
     // Append multiple files if any
     const files: FileList = systemAnlagen.value?.getFiles();
-    if (files) {
-        for(let i = 0; i < files.length; i++) {
+    if (files && files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
             formData.append('anlagen', files[i], files[i].name);
         }
     }
-    console.log('formData', formData.values());
 
     try {
         await $fetch('/api/v1/entschuldigung/post', {
             method: 'POST',
             body: formData,
             headers: {
-                'Content-Type': 'multipart/form-data',
                 "cache-control": "no-cache",
             },
         });
+        // Show success message to user
+        alert('Entschuldigung erfolgreich eingereicht');
     } catch (error) {
-        console.error(error);
+        console.error('Error submitting form:', error);
+        alert('Fehler beim Senden des Formulars');
     } finally {
         isLoading.value = false;
     }

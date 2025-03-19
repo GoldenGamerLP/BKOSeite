@@ -33,7 +33,6 @@ export default defineEventHandler(async (event) => {
   try {
     // Read multipart form data
     const formData = await readMultipartFormData(event);
-    console.log("Received form data:", formData);
     if (!formData) {
       throw createError({
         status: 400,

@@ -21,6 +21,7 @@ type Entschuldigungen = {
   ortDatum: string;
   unterschrift: string;
   anlagen?: FileAttachment[]; // Optional array of file attachments
+  status?: "gelesen" | "invalide" | undefined; // Added status field
 };
 
 export type { Entschuldigungen, FileAttachment };
