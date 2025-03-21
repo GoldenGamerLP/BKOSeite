@@ -278,7 +278,6 @@ const computedDays = computed(() => {
 });
 
 const openCreateDialog = (currentDate: DateValue | undefined) => {
-  console.log(currentDate);
   sccd.value?.openDialog(currentDate);
 };
 </script>

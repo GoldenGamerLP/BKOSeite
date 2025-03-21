@@ -60,7 +60,8 @@
                 <Card class="mb-4" :class="entry.status === 'gelesen' ? 'bg-green-50' : ''">
                     <CardHeader>
                         <CardTitle class="text-xl">{{ entry.nachname }} - {{ entry.vorname }}</CardTitle>
-                        <CardDescription class="text-base">Erstellt am {{ formatDate(entry.erstelltAm) }}</CardDescription>
+                        <CardDescription class="text-base">Erstellt am {{ formatDate(entry.erstelltAm) }}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
@@ -97,7 +98,8 @@
                             <p class="font-medium mb-2">Anlagen:</p>
                             <ol class="flex flex-wrap gap-2">
                                 <li v-for="file in entry.anlagen" :key="file.filename" alt="Anlage">
-                                    <a class="border border-dashed rounded-lg flex flex-col items-center justify-center p-2" :href="`/api/v1/files/${file.fileId}`" target="_blank" download>
+                                    <a class="border border-dashed rounded-lg flex flex-col items-center justify-center p-2"
+                                        :href="`/api/v1/files/${file.fileId}`" target="_blank" download>
                                         <File class="text-muted-foreground" />
                                         <p class="text-sm text-muted-foreground">{{ file.filename }}</p>
                                         <p class="text-sm text-muted-foreground">{{ formatSize(file.length) }}</p>
@@ -107,29 +109,33 @@
                             </ol>
                         </div>
                     </CardContent>
-                    <CardFooter class="flex flex-wrap gap-2 justify-center sm:justify-start">
-                        <Button variant="default" class="flex-grow sm:flex-grow-0" @click="markAsRead(entry)">
-                            <template v-if="loading === entry.id + 'read'">
-                                <span class="animate-spin mr-1">⌛</span> Verarbeite...
-                            </template>
-                            <template v-else-if="!entry.status">Als gelesen Markieren</template>
-                            <template v-else>
-                                <CheckCheck />
-                                Gelesen
-                            </template>
-                        </Button>
-                        <Button variant="secondary" class="flex-grow sm:flex-grow-0" @click="markAsInvalid(entry)">
-                            <template v-if="loading === entry.id + 'invalid'">
-                                <span class="animate-spin mr-1">⌛</span> Verarbeite...
-                            </template>
-                            <template v-else>Als invalide Markieren</template>
-                        </Button>
-                        <Button variant="secondary" class="flex-grow sm:flex-grow-0" @click="deleteEntry(entry)">
-                            <template v-if="loading === entry.id + 'delete'">
-                                <span class="animate-spin mr-1">⌛</span> Lösche...
-                            </template>
-                            <template v-else>Löschen</template>
-                        </Button>
+                    <CardFooter>
+                        <div class="flex gap-2">
+                            <Select v-model="entry.status" @update:model-value="(value) => updateStatus(entry, value)"
+                                id="statusSelect">
+                                <SelectTrigger>
+                                    <SelectValue :placeholder="entry.status || 'Status wählen'" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Status</SelectLabel>
+                                        <SelectItem value="gelesen">
+                                            Gelesen
+                                        </SelectItem>
+                                        <SelectItem value="invalide">
+                                            Ungültig
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <Button variant="secondary" class="flex-grow sm:flex-grow-0" @click="deleteEntry(entry)">
+                                <template v-if="loading === entry.id + 'delete'">
+                                    <Loader2 class="animate-spin size-4 mr-2" />
+                                    Löschen...
+                                </template>
+                                <template v-else>Löschen</template>
+                            </Button>
+                        </div>
                     </CardFooter>
                 </Card>
             </li>
@@ -138,8 +144,9 @@
 </template>
 
 <script lang="ts" setup>
-import { File, CheckCheck } from 'lucide-vue-next';
+import { File, CheckCheck, Loader2 } from 'lucide-vue-next';
 import { refDebounced } from '@vueuse/core'
+import type { Entschuldigungen } from '~/types/Entschuldigungen';
 
 const searchType = shallowRef("vorname");
 const sortType = shallowRef("nachname");
@@ -160,14 +167,18 @@ const { data, status, refresh } = useLazyFetch("/api/v1/entschuldigung/get", {
     watch: [debSearchType, debSortType, debSearchValue],
 });
 
-const markAsRead = async (entry) => {
+const updateStatus = async (entry: Entschuldigungen, status: String) => {
+    if (!status || status === "") {
+        return;
+    }
+
     try {
         loading.value = entry.id + "read";
         await $fetch('/api/v1/entschuldigung/updateStatus', {
             method: 'POST',
             body: {
                 id: entry.id,
-                status: 'gelesen'
+                status: status.toLowerCase(),
             }
         });
         refresh();
@@ -180,37 +191,13 @@ const markAsRead = async (entry) => {
     }
 };
 
-const markAsInvalid = async (entry) => {
-    try {
-        loading.value = entry.id + "invalid";
-        await $fetch('/api/v1/entschuldigung/updateStatus', {
-            method: 'POST',
-            body: {
-                id: entry.id,
-                status: 'invalide'
-            }
-        });
-        refresh();
-        // Optional: show success message
-    } catch (error) {
-        console.error('Fehler beim Markieren als invalide:', error);
-        // Optional: show error message
-    } finally {
-        loading.value = "";
-    }
-};
-
-const deleteEntry = async (entry) => {
-    if (!confirm("Möchtest du die Entschuldigung wirklich löschen?")) {
-        return;
-    }
-    
+const deleteEntry = async (entry: Entschuldigungen) => {
     try {
         loading.value = entry.id + "delete";
         await $fetch('/api/v1/entschuldigung/delete', {
             method: 'POST',
             body: {
-                id: entry.id
+                id: entry.id,
             }
         });
         refresh();

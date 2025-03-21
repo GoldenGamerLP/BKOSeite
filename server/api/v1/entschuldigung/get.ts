@@ -2,9 +2,6 @@ import { getAllEntschuldigungen } from "~/server/utils/EntschuldigungUtils";
 import * as z from "zod";
 
 export default defineEventHandler(async (event) => {
-
-    console.log(getQuery(event));
-  // Extract query parameters
   const { success, data, error } = await getValidatedQuery(
     event,
     validation.safeParseAsync

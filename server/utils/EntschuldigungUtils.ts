@@ -62,5 +62,11 @@ export async function markEntschuldigungAsInvalid(id: string) {
 }
 
 export async function deleteEntschuldigung(id: string) {
-  return entDataenbank.deleteOne({ id });
+  const entschuldigung = await entDataenbank.findOneAndDelete({ id });
+  if(entschuldigung?.anlagen) {
+    // Assuming you have a function to delete files from GridFS
+    for (const file of entschuldigung.anlagen) {
+      await deleteFile(file.fileId);
+    }
+  }
 }
