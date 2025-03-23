@@ -43,7 +43,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  .none {
+  .black {
     --background: 20 14.3% 4.1%;
     --foreground: 0 0% 95%;
 
@@ -88,6 +88,28 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground scrollbar font-[Quicksand];
+  }
+}
+
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    border-radius: var(--radius);
+    background: hsl(var(--border));
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: var(--radius);
+    border: 3px solid transparent;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--ring));
+    border-color: hsl(var(--ring));
   }
 }

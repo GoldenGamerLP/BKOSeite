@@ -10,6 +10,9 @@
         @pointermove="draw"
         @pointerup="stopDrawing"
         @pointerleave="stopDrawing"
+        @touchstart="startTouchDrawing"
+        @touchmove="drawTouch"
+        @touchend="stopDrawing"
       ></canvas>
       <div class="flex space-x-2 mt-2">
         <Button
@@ -44,7 +47,7 @@ import { Trash, Cloud, Download } from "lucide-vue-next";
 import { useFileSystemAccess } from "@vueuse/core";
 import { ref, onMounted, watch } from "vue";
 
-const { isSupported, data, file, fileName, fileMIME, open, save } =
+const { isSupported, data, open } =
   useFileSystemAccess({
     dataType: "ArrayBuffer",
   });
@@ -91,12 +94,17 @@ const clear = () => {
     const ctx = canvas.value.getContext("2d");
     if (ctx) {
       ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
-      ctx.fillStyle = "rgba(0, 0, 200, 0.25)";
-      ctx.font = "20px Arial";
+      ctx.fillStyle = "rgba(1, 125, 166, 1)";
+      ctx.font = "25px Arial";
       ctx.fillText("Unterschrift", 10, 50);
       hasSignature.value = false;
     }
   }
+};
+
+const startTouchDrawing = (e) => {
+  e.preventDefault();
+  startDrawing(e.touches[0]);
 };
 
 const startDrawing = (e) => {
@@ -115,6 +123,11 @@ const startDrawing = (e) => {
   }
 };
 
+const drawTouch = (e) => {
+  e.preventDefault();
+  draw(e.touches[0]);
+};
+
 const draw = (e) => {
   if (!isDrawing || !canvas.value) return;
 
@@ -127,7 +140,7 @@ const draw = (e) => {
 
   ctx.lineWidth = 2;
   ctx.lineCap = "round";
-  ctx.strokeStyle = "rgba(0, 0, 200, 0.6)";
+  ctx.strokeStyle = "rgba(1, 125, 166, 1)";
 
   ctx.beginPath();
   ctx.moveTo(last.x, last.y);

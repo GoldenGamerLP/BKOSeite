@@ -169,6 +169,22 @@ import {
 
 import type { CalendarEntry } from "~/types/Calendar";
 
+
+useHead({
+  title: "Kalender",
+  meta: [
+    {
+      name: "description",
+      content: "Kalenderansicht für alle Termine und Veranstaltungen",
+    },
+  ],
+})
+
+definePageMeta({
+  middleware: ["auth"],
+  layout: "sidebar",
+})
+
 const sccd = ref<InstanceType<typeof SystemCalendarCreateDialoag> | null>();
 const currentTime = ref("");
 const date = ref<DateValue>(today(getLocalTimeZone()));
@@ -176,8 +192,6 @@ const days = ref<string[]>([]);
 
 const {
   data: entries,
-  status,
-  error,
 } = useLazyFetch("/api/v1/calendar/entries/get", {
   method: "GET",
   query: { from: date.value?.toDate(getLocalTimeZone()) || null },

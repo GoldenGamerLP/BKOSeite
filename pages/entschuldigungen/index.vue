@@ -53,7 +53,7 @@
             <SystemAnlagen ref="systemAnlagen" />
 
             <Label for="ortDatum">Ort & Datum</Label>
-            <Input id="ortDatum" type="text" v-model="ortDatum" autocomplete="off" required />
+            <Input id="ortDatum" type="text" v-model="ortDatum" autocomplete="street-address" required />
 
             <Label for="unterschrift">Unterschrift</Label>
             <SystemUnterschrift id="unterschrift" ref="unterschrift" />

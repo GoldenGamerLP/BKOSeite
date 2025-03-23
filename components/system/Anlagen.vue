@@ -1,6 +1,9 @@
 <template>
   <div>
     <Label for="anlagen">Anlagen</Label>
+    <p class="text-muted-foreground">
+      Maximal 2 Anlagen können hochgeladen werden.
+    </p>
     <div class="my-2 flex flex-row space-x-2">
       <div
         v-if="!files"
@@ -25,11 +28,15 @@
         }}</span>
       </div>
       <div class="flex items-center flex-col justify-center">
-        <Button variant="link" @click="open()">
+        <Button
+          variant="link"
+          @click.prevent="open()"
+          :disabled="files?.length >= 2"
+        >
           <Cloud class="size-4" />
           Dokument hochladen
         </Button>
-        <Button variant="link" @click="reset()">
+        <Button variant="link" @click.prevent="reset()">
           <Trash class="size-4" />
           Zurücksetzen
         </Button>
@@ -41,10 +48,24 @@
 <script lang="ts" setup>
 import { File, Cloud, Trash } from "lucide-vue-next";
 import { useFileDialog } from "@vueuse/core";
+import { useToast } from "../ui/toast";
+
+const { toast } = useToast();
 
 const { files, open, reset, onCancel, onChange } = useFileDialog({
   accept: "image/*",
   multiple: true,
+});
+
+onChange((files) => {
+  if (files && files.length > 2) {
+    reset();
+    toast({
+      title: "Fehler",
+      description: "Maximal 2 Anlagen können hochgeladen werden.",
+      variant: "destructive",
+    });
+  }
 });
 
 const formatSize = (size: number) => {

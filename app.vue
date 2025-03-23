@@ -1,14 +1,11 @@
 <template>
-  <SidebarProvider :defaultOpen="defaultOpen">
-    <SystemAppSidebar />
-    <main class="flex-1">
-      <SidebarTrigger />
-      <NuxtLoadingIndicator />
+  <div>
+    <ClientOnly>
+      <Toaster />
+    </ClientOnly>
+    <NuxtLoadingIndicator />
+    <NuxtLayout>
       <NuxtPage />
-    </main>
-  </SidebarProvider>
+    </NuxtLayout>
+  </div>
 </template>
-
-<script lang="ts" setup>
-const defaultOpen = useCookie<boolean>('sidebar_state')
-</script>

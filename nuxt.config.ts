@@ -7,12 +7,20 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@vueuse/nuxt",
     "@nuxtjs/color-mode",
-    "@pinia/nuxt"
+    "@pinia/nuxt",
+    "@nuxtjs/google-fonts"
   ],
   app: {
-    rootAttrs: {
-      class: "dark",
-    },
+    head: {
+      charset: "utf-8",
+      title: "BKO-Seite",
+      meta: [
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1",
+        },
+      ]
+    }
   },
   shadcn: {
     /**
@@ -27,5 +35,11 @@ export default defineNuxtConfig({
   },
   colorMode: {
     classSuffix: ''
-  }
+  },
+  googleFonts: {
+    preload: true,
+    families: {
+      Quicksand: "300..700",
+    },
+  },
 });
