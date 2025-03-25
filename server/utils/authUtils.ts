@@ -1,4 +1,4 @@
-import { Collection, ObjectId } from "mongodb";
+import { Collection, CollectionInfo, ObjectId } from "mongodb";
 import database from "./DBUtils";
 import { Session, User } from "~/types/User";
 
@@ -8,11 +8,14 @@ const users = database.collection("users") as Collection<User>;
 const sessions = database.collection("sessions") as Collection<Session>;
 
 //Create index for session ttl
-sessions.indexExists("expires_at").then((exists) => {
-  if (!exists) {
-    sessions.createIndex({ expires_at: 1 }, { expireAfterSeconds });
+sessions.createIndex(
+  { expires_at: 1 },
+  {
+    expireAfterSeconds: 3600,
+    background: true,
+    partialFilterExpression: { user_id: { $exists: true } }
   }
-});
+);
 
 export function userNameToId(userMail: string) {
   return users.findOne({

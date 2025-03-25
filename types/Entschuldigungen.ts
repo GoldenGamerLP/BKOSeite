@@ -8,6 +8,7 @@ type FileAttachment = {
 };
 
 type Entschuldigungen = {
+  userId: string; // ID of the user who created the entschuldigung
   id: string;
   vorname: string;
   nachname: string;
@@ -21,7 +22,7 @@ type Entschuldigungen = {
   ortDatum: string;
   unterschrift: string;
   anlagen?: FileAttachment[]; // Optional array of file attachments
-  status?: "gelesen" | "invalide" | undefined; // Added status field
+  status?: "gueltig" | "ungueltig" | undefined; // Added status field
 };
 
 export type { Entschuldigungen, FileAttachment };

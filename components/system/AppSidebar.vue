@@ -1,22 +1,44 @@
 <script setup lang="ts">
-import { Calendar, ActivityIcon, Inbox, Cable } from "lucide-vue-next"
+import { Calendar, ActivityIcon, ChevronRight, Cable, LucidePaperclip, ListChecks, PencilLine, CalendarClockIcon, LucideCalendarHeart } from "lucide-vue-next"
 
 // Menu items.
 const items = [
   {
     title: "Kalender",
-    url: "/kalender",
     icon: Calendar,
+    submenu: [
+      {
+        title: "Mein Kalender",
+        url: "/authenticated/kalender",
+        icon: CalendarClockIcon,
+      },
+      {
+        title: "Zusätzlicher Kalender",
+        url: "/authenticated/kalender",
+        icon: LucideCalendarHeart,
+      },
+    ]
   },
   {
     title: "Entschuldigungen",
-    url: "/entschuldigungen",
-    icon: ActivityIcon,
-  },
-  {
-    title: "Lehrer",
-    url: "/entschuldigungen/test",
-    icon: Inbox,
+    icon: LucidePaperclip,
+    submenu: [
+    {
+        title: "Erstellen",
+        url: "/authenticated/entschuldigungen",
+        icon: ActivityIcon,
+      },
+      {
+        title: "Eigene",
+        url: "/authenticated/entschuldigungen/eigene",
+        icon: ListChecks,
+      },
+      {
+        title: "Verwalten",
+        url: "/authenticated/entschuldigungen/verwalten",
+        icon: PencilLine,
+      },
+    ]
   },
 ];
 </script>
@@ -32,21 +54,34 @@ const items = [
     </SidebarHeader>
     <SidebarContent>
       <SidebarGroup>
-        <SidebarGroupLabel>Bereiche</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-              <SidebarMenuItem v-for="item in items" :key="item.title">
-                <SidebarMenuButton asChild>
-                    <NuxtLink :to="item.url" class="flex items-center gap-2" activeClass="bg-primary/10 text-primary">
-                      <component :is="item.icon" />
-                      <span>{{item.title}}</span>
-                    </NuxtLink>
+        <SidebarMenu>
+          <Collapsible v-for="(item, index) in items" :key="item.title" :default-open="index === 1"
+            class="group/collapsible">
+            <SidebarMenuItem>
+              <CollapsibleTrigger as-child>
+                <SidebarMenuButton>
+                  {{ item.title }}
+                  <ChevronRight class="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
+              </CollapsibleTrigger>
+              <CollapsibleContent v-if="item.submenu">
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem v-for="childItem in item.submenu" :key="childItem.title">
+                    <SidebarMenuSubButton as-child>
+                      <NuxtLink :to="childItem.url" class="flex items-center gap-2 truncate" :active-class="'bg-primary/10 !text-primary font-semibold'">
+                        <component :is="childItem.icon" class="w-4 h-4" />
+                        {{ childItem.title }}
+                      </NuxtLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
+        </SidebarMenu>
       </SidebarGroup>
     </SidebarContent>
+    <SidebarRail />
     <SidebarFooter>
       <SystemColorMode />
     </SidebarFooter>

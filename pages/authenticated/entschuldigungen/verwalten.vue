@@ -56,7 +56,7 @@
         <Card class="mb-4">
           <CardHeader>
             <CardTitle class="text-xl flex items-center gap-2">
-              <span v-if="entry.status === 'gelesen'">
+              <span v-if="entry.status === 'gueltig'">
                 <CheckCheck class="text-green-500" />
               </span>
               {{ entry.nachname }} - {{ entry.vorname }}
@@ -147,10 +147,10 @@
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Status</SelectLabel>
-                    <SelectItem value="gelesen" class="bg-green-500">
-                      Gelesen
+                    <SelectItem value="gueltig" class="bg-green-500">
+                      Gültig
                     </SelectItem>
-                    <SelectItem value="invalide"> Ungültig </SelectItem>
+                    <SelectItem value="ungueltig"> Ungültig </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -179,13 +179,7 @@ import { refDebounced } from "@vueuse/core";
 import type { Entschuldigungen } from "~/types/Entschuldigungen";
 
 useHead({
-    title: "Entschuldigungen",
-    meta: [
-      {
-        name: "description",
-        content: "Hier kannst du alle Entschuldigungen sehen.",
-      },
-    ],
+    title: "Entschuldigungen Verwalten",
 })
 
 definePageMeta({

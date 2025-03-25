@@ -10,7 +10,6 @@
           Hier kannst du dich registrieren oder einloggen.
         </p>
       </div>
-      {{ user }}
     </span>
     <Tabs default-value="login" class="max-w-md w-full">
       <TabsList class="w-full">

@@ -12,10 +12,10 @@ export default defineEventHandler(async (event) => {
       });
     }
     
-    if (status === "gelesen") {
+    if (status === "gueltig") {
       await markEntschuldigungAsRead(id);
       return { success: true, message: "Entschuldigung als gelesen markiert" };
-    } else if (status === "invalide") {
+    } else if (status === "ungueltig") {
       await markEntschuldigungAsInvalid(id);
       return { success: true, message: "Entschuldigung als invalide markiert" };
     } else {

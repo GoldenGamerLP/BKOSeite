@@ -6,10 +6,10 @@
         </p>
         <form class="grid grid-cols-1 gap-4" @submit.prevent.stop="submit">
             <Label for="name">Name</Label>
-            <Input id="name" type="text" v-model="name" autocomplete="family-name" required />
+            <Input id="name" type="text" v-model="name" autocomplete="off" required disabled />
 
             <Label for="vorname">Vorname</Label>
-            <Input id="vorname" type="text" v-model="vorname" autocomplete="name" required />
+            <Input id="vorname" type="text" v-model="vorname" autocomplete="off" required disabled />
 
             <Label for="klassenleiter">Klassenleiter</Label>
             <Input id="klassenleiter" type="text" v-model="klassenleiter" required />
@@ -74,6 +74,24 @@ import type { DateRange } from "reka-ui";
 import Unterschrift from "~/components/system/Unterschrift.vue";
 import Anlagen from "~/components/system/Anlagen.vue";
 import { Loader2Icon } from "lucide-vue-next";
+import { useUser } from "~/composable/auth";
+
+const user = useUser();
+
+definePageMeta({
+    layout: "sidebar",
+});
+
+useHead({
+    title: "Neue Entschuldigung",
+});
+
+onMounted(() => {
+    if(!user.value) return;
+
+    name.value = user.value?.lastname || "";
+    vorname.value = user.value?.name || "";
+});
 
 const isLoading = ref(false);
 const unterschrift = ref<typeof Unterschrift>();
@@ -106,6 +124,7 @@ const submit = async () => {
     isLoading.value = true;
     const formData = new FormData();
 
+    formData.append('userId', user.value?._id || '');
     formData.append('nachname', name.value);
     formData.append('vorname', vorname.value);
     formData.append('klassenleiter', klassenleiter.value);

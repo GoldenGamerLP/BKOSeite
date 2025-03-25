@@ -181,7 +181,6 @@ useHead({
 })
 
 definePageMeta({
-  middleware: ["auth"],
   layout: "sidebar",
 })
 

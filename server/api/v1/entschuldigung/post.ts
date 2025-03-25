@@ -13,6 +13,7 @@ const fileSchema = z.object({
 
 // Main schema for form data
 const formSchema = z.object({
+  userId: z.string().min(1, "User ID ist erforderlich"),
   vorname: z.string().min(1, "Vorname ist erforderlich"),
   nachname: z.string().min(1, "Nachname ist erforderlich"),
   klassenleiter: z.string().min(1, "Klassenleiter ist erforderlich"),
@@ -97,7 +98,8 @@ export default defineEventHandler(async (event) => {
 
     // Create the document with all data
     const entschuldigungData = {
-      id: `entschuldigung_${Date.now()}`,
+      userId: validatedData.userId,
+      id: `entschuldigung_${Date.now()}-${validatedData.userId}`,
       vorname: validatedData.vorname,
       nachname: validatedData.nachname,
       klassenleiter: validatedData.klassenleiter,
