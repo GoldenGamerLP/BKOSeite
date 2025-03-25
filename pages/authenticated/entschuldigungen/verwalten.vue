@@ -187,7 +187,7 @@ definePageMeta({
 })
 
 const searchType = shallowRef("vorname");
-const sortType = shallowRef("nachname");
+const sortType = shallowRef("zeitraum");
 const searchValue = shallowRef("");
 const loading = ref("");
 

@@ -1,25 +1,26 @@
 import { useUser } from "~/composable/auth";
 
-export default defineNuxtRouteMiddleware((to, from) => {
+export default defineNuxtRouteMiddleware((to) => {
   const user = useUser();
 
-  if(user.value !== null) return;
+  if (user.value !== null) return;
+  if (to.path === '/authenticated') return;
 
-  const route = to.path.split("/")[2];
+  const routeParts = to.path.split("/");
   let isProtected = false,
     forward = "";
 
-  for (let crrRoute of route) {
+  for (let crrRoute of routeParts) {
     if (crrRoute === "authenticated") {
       isProtected = true;
       continue;
     }
-    if(isProtected) {
-        forward += `/${crrRoute}`;
+    if (isProtected) {
+      forward += `/${crrRoute}`;
     }
   }
 
-    if (isProtected) {
-        return navigateTo(`/authenticated?forward=${forward}`);
-    }
+  if (isProtected) {
+    return navigateTo(`/authenticated?forward=${forward}`);
+  }
 });

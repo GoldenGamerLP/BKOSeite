@@ -64,13 +64,22 @@
 
 <script setup lang="ts">
 import { Cable, Loader2 } from "lucide-vue-next";
-import { useUser } from "~/composable/auth";
 import { loginSchema, registerSchema } from "~/types/User";
 import { useToast } from "~/components/ui/toast";
 
 const { toast } = useToast();
-const user = useUser();
 const loading = ref(false);
+
+onMounted(() => {
+  const forwardedUrl = (useRoute().query.forward as string);
+  if (forwardedUrl) {
+    toast({
+      title: "Bitte einloggen",
+      description: "Du musst dich einloggen, um diese Seite zu sehen.",
+      variant: "default",
+    });
+  }
+})
 
 const onLogin = async (values: Record<string, any>) => {
   try {
@@ -86,6 +95,8 @@ const onLogin = async (values: Record<string, any>) => {
         description: "Willkommen zurück!",
         variant: "default",
       });
+
+      await forward();
     } else {
       toast({
         title: "Fehler beim Einloggen",
@@ -97,7 +108,9 @@ const onLogin = async (values: Record<string, any>) => {
     console.error(error);
     toast({
       title: "Fehler beim Einloggen",
-      description: error.statusText || "Bitte überprüfe deine Eingaben und versuche es erneut.",
+      description:
+        error.statusText ||
+        "Bitte überprüfe deine Eingaben und versuche es erneut.",
       variant: "destructive",
     });
   } finally {
@@ -119,6 +132,8 @@ const onRegister = async (values: Record<string, any>) => {
         description: "Willkommen zur BKO-Seite!",
         variant: "default",
       });
+
+      await forward();
     } else {
       toast({
         title: "Fehler beim Registrieren",
@@ -130,11 +145,18 @@ const onRegister = async (values: Record<string, any>) => {
     console.error(error);
     toast({
       title: "Fehler beim Registrieren",
-      description: error.statusText || "Bitte überprüfe deine Eingaben und versuche es erneut.",
+      description:
+        error.statusText ||
+        "Bitte überprüfe deine Eingaben und versuche es erneut.",
       variant: "destructive",
     });
   } finally {
     loading.value = false;
   }
+};
+
+const forward = async () => {
+  const forwardedUrl = (useRoute().query.forward as string) || "/dashboard";
+  await useRouter().push("/authenticated" + forwardedUrl);
 };
 </script>

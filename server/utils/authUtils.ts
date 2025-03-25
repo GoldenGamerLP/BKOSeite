@@ -7,15 +7,11 @@ export const expireAfterSeconds = 60 * 60 * 24 * 7; // 1 week
 const users = database.collection("users") as Collection<User>;
 const sessions = database.collection("sessions") as Collection<Session>;
 
-//Create index for session ttl
-sessions.createIndex(
-  { expires_at: 1 },
-  {
-    expireAfterSeconds: 3600,
-    background: true,
-    partialFilterExpression: { user_id: { $exists: true } }
-  }
-);
+database.listCollections().toArray().then((collections: CollectionInfo[]) => {
+  if(collections.findIndex(collection => collection.name === "sessions") !== -1) return;
+
+  database.createCollection("sessions", { timeseries: { timeField: "expires_at", metaField: "user_id" } });
+});
 
 export function userNameToId(userMail: string) {
   return users.findOne({
