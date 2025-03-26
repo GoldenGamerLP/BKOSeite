@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const { userId, showOnlyInvalid, sortType } = data;
+  console.log(data);
 
   // Fetch entschuldigungen for the user
   return await getEntschuldigungenByUserId(userId, showOnlyInvalid, sortType);
@@ -23,5 +24,6 @@ export default defineEventHandler(async (event) => {
 const validation = z.object({
   userId: z.string().min(1, "User ID ist erforderlich"),
   sortType: z.enum(["seven", "fourteen", "thirty", "ninety", "yearly"]),
-  showOnlyInvalid: z.coerce.boolean(),
+  //Work arround!
+  showOnlyInvalid: z.preprocess((val) => String(val).toLowerCase() === 'true', z.boolean()).default(false),
 });

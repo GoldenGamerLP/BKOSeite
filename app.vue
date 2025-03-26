@@ -9,3 +9,11 @@
     </NuxtLayout>
   </div>
 </template>
+
+<script lang="ts" setup>
+useHead({
+  bodyAttrs: {
+    class: "black"
+  }
+})
+</script>

@@ -1,5 +1,6 @@
 import { Entschuldigungen } from "~/types/Entschuldigungen";
 import database from "./DBUtils";
+import { Filter } from "mongodb";
 
 const entDataenbank = database.collection<Entschuldigungen>("entschuldigung");
 
@@ -8,6 +9,7 @@ export async function getAllEntschuldigungen(
   searchValue?: string,
   sortType?: string
 ) {
+  console.log(searchType,searchValue,sortType)
   let query = {};
 
   // Add search filter if provided
@@ -68,6 +70,9 @@ export async function getAllEntschuldigungen(
     }
   }
 
+  console.log(JSON.stringify(query));
+  console.log(JSON.stringify(sortOptions));
+
   return entDataenbank.find(query).sort(sortOptions).toArray();
 }
 
@@ -76,14 +81,17 @@ export async function getEntschuldigungenByUserId(
   showOnlyInvalid: boolean,
   sortType: "seven" | "fourteen" | "thirty" | "ninety" | "yearly"
 ) {
- return entDataenbank
-    .find({
-      userId,
-      status: showOnlyInvalid ? "ungueltig" : { $ne: "ungueltig" },
-      erstelltAm: { $gte: new Date(Date.now() - getMillisecondsForSortType(sortType)) },
-    })
-    .sort({ erstelltAm: -1 })
-    .toArray();
+  let expr: Filter<Entschuldigungen> = {
+    userId,
+    erstelltAm: {
+      $gte: new Date(Date.now() - getMillisecondsForSortType(sortType)),
+    },
+    status: showOnlyInvalid
+      ? { $eq: "ungueltig" }
+      : { $in: ["gueltig", "ungueltig", undefined] },
+  };
+
+  return entDataenbank.find(expr).sort({ erstelltAm: -1 }).toArray();
 }
 
 function getMillisecondsForSortType(
