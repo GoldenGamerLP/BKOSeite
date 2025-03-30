@@ -4,12 +4,15 @@ import { Filter } from "mongodb";
 
 const entDataenbank = database.collection<Entschuldigungen>("entschuldigung");
 
+export async function getRecentEntschuldigungen(userId: string): Promise<Entschuldigungen[]> {
+  return entDataenbank.find({userId}).sort({erstelltAm: -1}).limit(3).toArray();
+}
+
 export async function getAllEntschuldigungen(
   searchType?: string,
   searchValue?: string,
   sortType?: string
 ) {
-  console.log(searchType,searchValue,sortType)
   let query = {};
 
   // Add search filter if provided
@@ -69,9 +72,6 @@ export async function getAllEntschuldigungen(
       sortOptions = { erstelltAm: -1 }; // newest created first
     }
   }
-
-  console.log(JSON.stringify(query));
-  console.log(JSON.stringify(sortOptions));
 
   return entDataenbank.find(query).sort(sortOptions).toArray();
 }

@@ -147,7 +147,7 @@
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Status</SelectLabel>
-                    <SelectItem value="gueltig" class="bg-green-500">
+                    <SelectItem value="gueltig">
                       Gültig
                     </SelectItem>
                     <SelectItem value="ungueltig"> Ungültig </SelectItem>
