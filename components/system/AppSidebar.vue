@@ -11,6 +11,9 @@ import {
   LucideCalendarHeart,
   LayoutDashboard
 } from "lucide-vue-next";
+import { useUser } from "~/composable/auth";
+
+const user = useUser();
 
 // Menu items.
 const items = [
@@ -64,17 +67,18 @@ const items = [
               </a>
             </SidebarMenuButton>
             <SidebarMenuSub v-if="item.submenu.length">
-              <SidebarMenuSubItem
-                v-for="childItem in item.submenu"
-                :key="childItem.title"
-              >
-                <SidebarMenuSubButton as-child>
-                  <NuxtLink :to="childItem.url" :active-class="'bg-sidebar-accent text-sidebar-accent-foreground'">
-                    <component :is="childItem.icon" class="text-muted-foreground size-5" />
-                    {{ childItem.title }}
-                  </NuxtLink>
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
+              <template v-for="childItem in item.submenu" :key="childItem.title">
+                <SidebarMenuSubItem
+                  v-if="childItem.title !== 'Verwalten' || user?.roles.includes('admin')"
+                >
+                  <SidebarMenuSubButton as-child>
+                    <NuxtLink :to="childItem.url" :active-class="'bg-sidebar-accent text-sidebar-accent-foreground'">
+                      <component :is="childItem.icon" class="text-muted-foreground size-5" />
+                      {{ childItem.title }}
+                    </NuxtLink>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              </template>
             </SidebarMenuSub>
           </SidebarMenuItem>
         </SidebarMenu>

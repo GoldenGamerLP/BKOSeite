@@ -75,8 +75,10 @@ import Unterschrift from "~/components/system/Unterschrift.vue";
 import Anlagen from "~/components/system/Anlagen.vue";
 import { Loader2Icon } from "lucide-vue-next";
 import { useUser } from "~/composable/auth";
+import { useToast } from "~/components/ui/toast";
 
 const user = useUser();
+const { toast } = useToast();
 
 definePageMeta({
     layout: "sidebar",
@@ -118,6 +120,12 @@ const begruendungOptions = ref([
     { value: "Krankheit", label: "Krankheit" },
     { value: "Familie", label: "Familie" },
     { value: "Sonstiges", label: "Sonstiges" },
+    { value: "Krankheit mit Attest", label: "Krankheit mit Attest" },
+    { value: "Praktikum", label: "Praktikum" },
+    { value: "Führerscheinprüfung", label: "Führerscheinprüfung" },
+    { value: "Bewerbungsverfahren", label: "Bewerbungsverfahren" },
+    { value: "Verspätung", label: "Verspätung" },
+    { value: "Sonderurlaub", label: "Sonderurlaub" },
 ]);
 
 const submit = async () => {
@@ -152,11 +160,19 @@ const submit = async () => {
                 "cache-control": "no-cache",
             },
         });
-        // Show success message to user
-        alert('Entschuldigung erfolgreich eingereicht');
+        toast({
+            title: "Erfolg",
+            description: "Die Entschuldigung wurde erfolgreich eingereicht.",
+        });
+
+        await useRouter().push("/authenticated/entschuldigungen/eigene");
     } catch (error) {
         console.error('Error submitting form:', error);
-        alert('Fehler beim Senden des Formulars');
+        toast({
+            title: "Fehler",
+            description: "Es gab einen Fehler beim Einreichen der Entschuldigung.",
+            variant: "destructive",
+        });
     } finally {
         isLoading.value = false;
     }

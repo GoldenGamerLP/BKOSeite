@@ -147,10 +147,10 @@
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Status</SelectLabel>
-                    <SelectItem value="gueltig">
-                      Gültig
+                    <SelectItem value="akzeptiert">
+                      Akzeptiert
                     </SelectItem>
-                    <SelectItem value="ungueltig"> Ungültig </SelectItem>
+                    <SelectItem value="nicht_akzeptiert">Nicht Akzeptiert</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -177,14 +177,29 @@
 import { File, CheckCheck, Loader2 } from "lucide-vue-next";
 import { refDebounced } from "@vueuse/core";
 import type { Entschuldigungen } from "~/types/Entschuldigungen";
+import { useUser } from "~/composable/auth";
+import { useToast } from "~/components/ui/toast";
+
+const { toast } = useToast();
 
 useHead({
     title: "Entschuldigungen Verwalten",
 })
 
 definePageMeta({
-    layout: "sidebar",
-})
+  middleware: [
+    function (to, from) {
+      if (!useUser()?.value?.roles?.includes("admin")) {
+        toast({
+          title: "Zugriff verweigert",
+          description: "Du hast keine Berechtigung, diese Seite zu sehen.",
+        });
+        return navigateTo("/authenticated/dashboard");
+      }
+    },
+  ],
+  layout: "sidebar",
+});
 
 const searchType = shallowRef("vorname");
 const sortType = shallowRef("zeitraum");

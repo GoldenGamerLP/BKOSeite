@@ -87,8 +87,8 @@ export async function getEntschuldigungenByUserId(
       $gte: new Date(Date.now() - getMillisecondsForSortType(sortType)),
     },
     status: showOnlyInvalid
-      ? { $eq: "ungueltig" }
-      : { $in: ["gueltig", "ungueltig", undefined] },
+      ? { $eq: "nicht_akzeptiert" }
+      : { $in: ["akzeptiert", "nicht_akzeptiert", undefined] },
   };
 
   return entDataenbank.find(expr).sort({ erstelltAm: -1 }).toArray();
@@ -122,11 +122,11 @@ export async function createEntschuldigung(entschuldigung: Entschuldigungen) {
 }
 
 export async function markEntschuldigungAsRead(id: string) {
-  return entDataenbank.updateOne({ id }, { $set: { status: "gueltig" } });
+  return entDataenbank.updateOne({ id }, { $set: { status: "akzeptiert" } });
 }
 
 export async function markEntschuldigungAsInvalid(id: string) {
-  return entDataenbank.updateOne({ id }, { $set: { status: "ungueltig" } });
+  return entDataenbank.updateOne({ id }, { $set: { status: "nicht_akzeptiert" } });
 }
 
 export async function deleteEntschuldigung(id: string) {

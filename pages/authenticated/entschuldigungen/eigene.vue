@@ -60,11 +60,11 @@
                 Status:
                 <Badge
                   :variant="
-                    entschuldigung?.status === 'gueltig'
+                    entschuldigung?.status === 'akzeptiert'
                       ? 'default'
                       : 'secondary'
                   "
-                  >{{ entschuldigung.status || "Offen" }}</Badge
+                  >{{ entschuldigung.status?.replace("_"," ") || "Offen" }}</Badge
                 >
               </p>
             </CardFooter>

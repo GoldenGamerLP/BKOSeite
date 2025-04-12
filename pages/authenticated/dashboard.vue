@@ -18,11 +18,11 @@
           :class="
             cn(
               'p-4 flex justify-between items-center rounded-lg bg-card',
-              entry.status === 'gueltig'
-                ? 'from-card to-emerald-900 bg-gradient-to-r'
+              entry.status === 'akzeptiert'
+                ? 'from-card via-card to-green-900 bg-gradient-to-r'
                 : '',
-              entry.status === 'ungueltig'
-                ? 'from-card to-purple-900 bg-gradient-to-r'
+              entry.status === 'nicht_akzeptiert'
+                ? 'from-card via-card to-red-900 bg-gradient-to-r'
                 : ''
             )
           "
@@ -35,7 +35,7 @@
               {{ formatDate(entry.zeitraumBis) }}</span
             >
           </div>
-          <div class="capitalize">{{ entry.status || "Offen" }}</div>
+          <div class="capitalize">{{ entry.status?.replace("_", " ") || "Offen" }}</div>
         </li>
       </ol>
     </div>
